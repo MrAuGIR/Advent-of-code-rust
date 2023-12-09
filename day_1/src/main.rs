@@ -1,17 +1,17 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
-use regex::Regex;
+use std::collections::HashMap;
+
 
 
 fn main() {
     
-    let path = String::from("./input/calibration.txt");
+    let path = String::from("./input/data.txt");
 
-    let nombres_alphanumeriques = ["one","two","three","four","five","six", "seven", "eight", "nine"];
+    let nombres_alphanumeriques = ["1","2","3","4","5","6","7","8","9","one","two","three","four","five","six", "seven", "eight", "nine"];
 
- //   let regex = Regex::new(&format!(r"\d|(?:{})", nombres_alphanumeriques.join("|"))).expect("erreur dans la regex");
-    let regex = Regex::new(&format!(r"(?:{})|\d", nombres_alphanumeriques.join("|"))).expect("erreur dans la regex");
+    //let regex = Regex::new(&format!(r"\d|(?:{})", nombres_alphanumeriques.join("|"))).expect("erreur dans la regex"); // regex methode premiere partie
 
     let mut count: i32 = 0;
 
@@ -20,25 +20,29 @@ fn main() {
             if let Ok(ip) = line   {
                 println!("{}",ip);
 
-                
-                let nombres: Vec<&str> = regex.find_iter(&ip).map(|m| m.as_str()).collect();
-                
-                println!("premier {:?}, dernier {:?}",nombres.first(), nombres.last());
+               // let nombres: Vec<&str> = regex.find_iter(&ip).map(|m| m.as_str()).collect(); // utilisé lors de la première partie
 
-                let value: i32 = match nombres.len() {
-                    n if n >= 1 => {
-                        let chiffre = format!("{}{}",convert_alpha(nombres[0]), convert_alpha(nombres[nombres.len() - 1]));
-                        chiffre.parse::<i32>().expect("expect a number")
+                let (first, last) = find_first_last_occurence(&ip, &nombres_alphanumeriques);
+                
+                println!("premier {:?}, dernier {:?}",first, last);
+
+
+                let value: i32 = if let Some(first) = first {
+                    if let Some(last) = last {
+                        let chiffre = format!("{}{}",convert_alpha(first), convert_alpha(last));
+                        chiffre.parse::<i32>().unwrap_or(0)
+                    } else {
+                        convert_alpha(first).parse::<i32>().unwrap_or(0)
                     }
-                    _ => {
-                      //  println!("rien trouve sur cette ligne : {}",ip);
-                        0
-                    }
+                } else {
+                    0
                 };
-               // println!("valeur de la ligne est {:?}",value);
+
+                println!("valeur de la ligne est {:?}",value);
                 count += value;
-            
-            }  
+            }
+
+               
         }
         println!("{:?}",count);
     }
@@ -71,18 +75,26 @@ fn find_first_last_occurence<'a>(line: &'a str, numbers: &[&'a str]) -> (Option<
     let mut first: Option<&str> = None;
     let mut last: Option<&str> = None;
 
+    
+    let mut indices_map: HashMap<usize, &'a str> = HashMap::new();
+
     for &number in numbers {
-        if let Some(index) = line.find(number) {
-            if first.is_none() || index < line.find(first.unwrap()).unwrap() {
-                first = Some(number);
-            }
-            let end_index = index + number.len();
-            if last.is_none() || end_index > line.find(last.unwrap()).unwrap() {
-                last = Some(number);
-            }
-        }
-        
+
+        indices_map.extend(line.match_indices(number).map(|(i,n)| (i,n)));
+    }
+    
+    let mut indices: Vec<usize> = indices_map.keys().cloned().collect();
+    indices.sort();
+
+    if let Some(first_index) = indices.first() {
+        first = indices_map.get(first_index).cloned();
     }
 
-    (first,last)
+    if let Some(last_index) = indices.last() {
+        last = indices_map.get(last_index).cloned();
+    }
+
+    println!("{:?}", indices_map);
+
+    (first, last)
 }
