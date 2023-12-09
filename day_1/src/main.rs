@@ -4,7 +4,6 @@ use std::path::Path;
 use std::collections::HashMap;
 
 
-
 fn main() {
     
     let path = String::from("./input/data.txt");
