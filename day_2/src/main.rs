@@ -70,7 +70,9 @@ fn main() {
     }
    // println!("{:#?}",games);
 
-    get_available_games(&entries, &games, &mut available_games);
+   // get_available_games(&entries, &games, &mut available_games);
+
+   get_games_powed( &games);
 
     // somme des games valables
     let mut count = 0u16;
@@ -101,4 +103,13 @@ fn get_available_games(entries: &Entries, games: &Vec<Game>, available_games: &m
         println!("game {:#?} est valable",game.indice);
         available_games.push(game.clone())
     }
+}
+
+fn get_games_powed(games: &Vec<Game>) {
+    let mut sum = 0;
+    for game in games {
+        println!("game {:?} : {:#?}",game.indice,game.get_powed());
+        sum += game.get_powed();
+    }
+    println!("sum : {:?}", sum);
 }

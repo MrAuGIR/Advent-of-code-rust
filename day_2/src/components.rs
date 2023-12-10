@@ -12,6 +12,37 @@ impl Game {
             series:series,
         }
     }
+
+    pub fn get_max_by_color(&self, target_color: &Color) -> u16 {
+        let mut max = 0u16;
+        for serie in &self.series {
+            if let Some(cube) = serie.get_cube_color(target_color) {
+                if cube.quantity.parse::<u16>().unwrap() > max {
+                    max = cube.quantity.parse::<u16>().unwrap();
+                }
+            }
+        }
+        return max;
+    }
+
+    pub fn get_powed(&self) -> u32 {
+        let colors = vec![
+            Color::Red(String::from("red")),
+            Color::Green(String::from("green")),
+            Color::Blue(String::from("blue")),
+        ];
+
+        let mut powed: Vec<u32> = Vec::new();
+
+        for color in &colors {
+            powed.push(self.get_max_by_color(color) as u32);
+        }
+        let mut value = 1u32;
+        for max in powed {
+            value *= max;
+        }
+        return value;
+    }
 }
 
 #[derive(Debug,Clone)]
@@ -29,9 +60,9 @@ impl Serie {
     pub fn is_availlable(&self,entries: &Entries) -> bool {
 
         let colors = vec![
-            Color::Blue(String::from("blue")),
             Color::Red(String::from("red")),
             Color::Green(String::from("green")),
+            Color::Blue(String::from("blue")),
         ];
 
         for color in colors {
