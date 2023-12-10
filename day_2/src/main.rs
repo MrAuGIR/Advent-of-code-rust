@@ -106,10 +106,14 @@ fn get_available_games(entries: &Entries, games: &Vec<Game>, available_games: &m
 }
 
 fn get_games_powed(games: &Vec<Game>) {
-    let mut sum = 0;
-    for game in games {
-        println!("game {:?} : {:#?}",game.indice,game.get_powed());
-        sum += game.get_powed();
-    }
+
+    let sum: u32 = games
+        .iter()
+        .map(|game|{
+            println!("game {:?} : {:#?}",game.indice,game.get_powed());
+            game.get_powed()
+        })
+        .sum();
+
     println!("sum : {:?}", sum);
 }

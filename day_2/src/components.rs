@@ -14,15 +14,13 @@ impl Game {
     }
 
     pub fn get_max_by_color(&self, target_color: &Color) -> u16 {
-        let mut max = 0u16;
-        for serie in &self.series {
-            if let Some(cube) = serie.get_cube_color(target_color) {
-                if cube.quantity.parse::<u16>().unwrap() > max {
-                    max = cube.quantity.parse::<u16>().unwrap();
-                }
-            }
-        }
-        return max;
+        
+        self.series
+            .iter()
+            .flat_map(|serie| serie.get_cube_color(target_color))
+            .map(|cube| cube.quantity.parse::<u16>().unwrap())
+            .max()
+            .unwrap_or(0)
     }
 
     pub fn get_powed(&self) -> u32 {
@@ -32,16 +30,10 @@ impl Game {
             Color::Blue(String::from("blue")),
         ];
 
-        let mut powed: Vec<u32> = Vec::new();
-
-        for color in &colors {
-            powed.push(self.get_max_by_color(color) as u32);
-        }
-        let mut value = 1u32;
-        for max in powed {
-            value *= max;
-        }
-        return value;
+        colors
+            .iter()
+            .map(|color| self.get_max_by_color(color) as u32)
+            .product()
     }
 }
 
