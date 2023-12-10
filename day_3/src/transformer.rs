@@ -25,6 +25,14 @@ pub fn transform_to_graph(lines: Lines<io::BufReader<File>>) -> Graph {
                         current_part_number.clear();
                         graph.add_node(create_node(Type::Other(character.to_string()), char_index, line_index));
                     },
+                    '*' => {
+                        if !current_part_number.is_empty() {
+                            let type_node = Type::PartNumber(current_part_number.parse::<u32>().unwrap());
+                            graph.add_node(create_node(type_node, char_index - current_part_number.len(), line_index));
+                        };
+                        current_part_number.clear();
+                        graph.add_node(create_node(Type::Gear(character.to_string()), char_index, line_index));
+                    },
                     _ if character.is_numeric() => {
                         current_part_number.push(character);
                         continue; 

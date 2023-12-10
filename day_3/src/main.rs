@@ -14,10 +14,13 @@ fn main() {
 
         let graph = transform_to_graph(lines);
 
-        let nodes = graph.find_by_type(Type::PartNumber(000));
+     //    let nodes = graph.find_by_type(Type::PartNumber(000));  // premiere partie
+     //    let sum: u32 = nodes.iter().map(|&node| node.node_type.get_integer_value().unwrap_or(0)).sum(); // premiere partie
 
-        let sum: u32 = nodes.iter().map(|&node| node.node_type.get_integer_value().unwrap_or(0)).sum();
+        let nodes_gears = graph.find_gear(Type::Gear("x".to_string()));
+        let sum: u32 = nodes_gears.iter().map(|&node| node.sum_real_gear(&graph)).sum();
 
+    
         println!("{:#?}",sum);
     }   
 }
