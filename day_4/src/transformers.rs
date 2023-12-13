@@ -12,10 +12,10 @@ pub fn transform_to_list(lines: Lines<io::BufReader<File>>) -> Game  {
 
             
             if let Some((_, rest)) = line_content.split_once(": ") {
-                println!("{}", rest);
+                
                 game.add_card(transform_card(line_index + 1,rest.to_string()));
             } else {
-                println!("{}", line_content);
+                println!("{}", "ok transform");
             }
         }
     }

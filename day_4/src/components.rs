@@ -1,14 +1,14 @@
 use std::collections::HashMap;
-use num::pow;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Card {
     pub index: usize,
     pub winning_suite: Vec<u16>,
     pub played_suite: Vec<u16>,
     pub occurence: HashMap<u16, usize>,
     pub score: u32,
+    pub copies_to_win: Vec<u16>, 
 }
 
 impl Card {
@@ -19,6 +19,7 @@ impl Card {
             played_suite: played,
             occurence: HashMap::new(),
             score: 0u32,
+            copies_to_win: Vec::new(), 
         }
     }
 
@@ -28,38 +29,48 @@ impl Card {
 
     pub fn find_occurences(&mut self) {
 
+        // calcul des occurences trouver dans les suites de nombres
         for &win_number in &self.winning_suite {
-
             if let Some(_) = self.played_suite.iter().find(|&n| n == &win_number) {
-               let counter = self.occurence.entry(win_number).or_insert(0);
-               *counter += 1;
-            } else {
-                continue;
+                let counter = self.occurence.entry(win_number).or_insert(0);
+                *counter += 1;
             }
         }
+        self.score = self.occurence.len() as u32;
     }
 
-    pub fn calcul_score(&mut self) {
-        if self.occurence.is_empty() {
-            self.score = 0;
-            
-        } else {
-            self.score = pow(2,self.occurence.len() - 1);
+    pub fn calculate_copies_to_win(&mut self, cards: &Vec<Card>) {
+        // Effacer les anciennes copies à gagner
+        self.copies_to_win.clear();
+
+        if let Some(index) = cards.iter().position(|c| c.index == self.index) {
+            // Copy the cards below based on the number of matching numbers
+            let start_index = index + 1;
+            let end_index = index + 1 + self.occurence.len();  // Adjust here to use the number of matching numbers
+            for i in start_index..end_index {
+                if i < cards.len() {
+                    self.copies_to_win.push(i as u16);
+                } else {
+                    break;
+                }
+            }
         }
-        // println!("{}^{} = {}", 2, self.occurence.len(), self.score);
+    
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct Game {
-    cards: Vec<Card>,
-    total_score: u32,
+    pub cards: Vec<Card>,
+    pub copy_cards: Vec<Card>,
+    pub total_score: u32,
 }
 
 impl Game {
     pub fn new () -> Game {
         Game {
             cards: Vec::new(),
+            copy_cards: Vec::new(),
             total_score: 0u32,
         }
     }
@@ -69,19 +80,49 @@ impl Game {
         
     }
 
+    pub fn get_clone_by_index(&self, index: usize) -> Card {
+        return self.cards.get(index).unwrap().clone();
+    }
+
     pub fn check_occurence_in_cards(&mut self) {
-        for card in &mut self.cards {
-            card.find_occurences();
+        let cards_len = self.cards.len();
+        
+        for i in 0..cards_len{
+            self.cards[i].find_occurences();
         }
     }
 
-    pub fn get_all_scores(&mut self) {
-        self.total_score = 0u32;
-        for card in &mut self.cards {
-            card.calcul_score();
-            self.total_score += card.score;
-            println!("score {:?}", card.score);
+    pub fn prepare_copies_card(&mut self) {
+        let cards_len = self.cards.len();
+        let mut cloned_cards = self.cards.clone();
+        for i in 0..cards_len{
+            self.cards[i].calculate_copies_to_win(&mut cloned_cards);
         }
-        println!("score total {:?}", self.total_score);
+    }
+
+    pub fn get_all_scores(&mut self) -> Vec<Card>{
+        self.total_score = 0u32;
+        let mut card_stack = self.cards.to_vec();
+        
+        let mut card_zero_score: Vec<Card> = Vec::new();
+    
+        while let Some(current_card) = Some(card_stack.remove(0)) {
+            
+            println!("longueur de la pile {:?} ",card_stack.len());
+
+            if current_card.score > 0 {
+
+                for index in &current_card.copies_to_win {
+                    card_stack.push(self.get_clone_by_index(index.clone() as usize));
+                }
+                
+            }
+            card_zero_score.push(current_card);
+            
+            if card_stack.is_empty() {
+                break;
+            }
+        }
+        return card_zero_score;
     }
 }
