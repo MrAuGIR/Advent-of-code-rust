@@ -9,7 +9,7 @@ pub struct Category {
 #[derive(Debug, Clone)]
 pub struct Mapper {
     pub maps: Vec<Map>,
-    pub mapping: BTreeMap<u32, u32>,
+    pub mapping: BTreeMap<u64, u64>,
     pub source: Category,
     pub destination: Category,
 }
@@ -20,7 +20,7 @@ impl Mapper {
         
         return Mapper {
             maps: Vec::new(),
-            mapping: Mapper::init_mapping(),
+            mapping: BTreeMap::new(),
             source: source,
             destination: destination
         };
@@ -30,15 +30,6 @@ impl Mapper {
         self.maps.push(map);
     }
 
-    fn init_mapping() -> BTreeMap<u32, u32> {
-        let mut hash_map: BTreeMap<u32, u32> = BTreeMap::new();
-
-        for i in 0..100 {
-            hash_map.insert(i,i);
-        }
-        return hash_map;
-    }
-
     pub fn execute_maps(&mut self) {
 
         for map in &self.maps {
@@ -46,27 +37,43 @@ impl Mapper {
             let start_value = map.index_destination;
             let length = map.length;
 
-            for (index, value) in self.mapping.range_mut(start_position..start_position + length) {
-                *value = start_value + index - start_position;
-                //println!("{:?} + {:?} = {:?}",start_value,index - start_position,*value);
+            /* for index in start_position..start_position + length {
+                
+                self.mapping.insert(index, start_value + index - start_position);
+                println!("{:?} + {:?} = {:?}",start_value,index - start_position,start_value + index - start_position);
+            } */
+
+             // Définir la taille du lot en fonction de la distribution des valeurs
+            let batch_size = length / 10 as u64;
+            println!("batch size {:?} ",batch_size);
+            // Utiliser le traitement par lots
+            for batch_start in (start_position..start_position + length).step_by(batch_size as usize) {
+                let batch_end = (batch_start + batch_size).min(start_position + length);
+
+                let values: Vec<_> = (batch_start..batch_end)
+                    .map(|index| (index, start_value + index - start_position))
+                    .collect();
+                
+                self.mapping.extend(values);
             }
         }
+        
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct Map {
-    pub index_destination: u32,
-    pub index_source: u32,
-    pub length: u32
+    pub index_destination: u64,
+    pub index_source: u64,
+    pub length: u64
 }
 
 impl Map {
     pub fn new<'a>(destination: &str, source: &str, length: &str) -> Result<Self, &'a str> {
 
-        let destination = destination.parse::<u32>().map_err(|_| "Échec de la conversion destination")?;
-        let source = source.parse::<u32>().map_err(|_| "echec de la conversion source")?;
-        let length = length.parse::<u32>().map_err(|_| "Echec de la conversion de length")?;
+        let destination = destination.parse::<u64>().map_err(|_| "Échec de la conversion destination")?;
+        let source = source.parse::<u64>().map_err(|_| "echec de la conversion source")?;
+        let length = length.parse::<u64>().map_err(|_| "Echec de la conversion de length")?;
 
         Ok(Map {
             index_destination: destination,
