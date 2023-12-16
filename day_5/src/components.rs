@@ -100,3 +100,23 @@ impl Almanach {
         self.mappers.push(mapper);
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct SeedRang
+{
+    pub seed_start: u64,
+    pub seed_length: u64,
+    pub seed_end: u64,
+}
+
+impl SeedRang {
+
+    pub fn new(start: u64, length: u64) -> SeedRang
+    {
+        SeedRang {
+            seed_length: length,
+            seed_start: start,
+            seed_end: start + length,
+        }
+    }
+}
