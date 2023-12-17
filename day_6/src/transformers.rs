@@ -4,15 +4,15 @@ use std::io::{self, Lines};
 
 use crate::components::Race;
 
-pub fn transform_line_distance(lines: Lines<io::BufReader<File>>) -> Vec<u32> {
+pub fn transform_line_distance(lines: Lines<io::BufReader<File>>) -> Vec<u64> {
 
-    let mut distances: Vec<u32> = Vec::new();
+    let mut distances: Vec<u64> = Vec::new();
     for line in lines {
         
         if let Ok(line) = line {
 
             distances = line.split_whitespace().map(|distance| {
-                distance.parse::<u32>().expect("erreur de conversion")
+                distance.parse::<u64>().expect("erreur de conversion")
             }).collect()
         }
     }
@@ -20,15 +20,15 @@ pub fn transform_line_distance(lines: Lines<io::BufReader<File>>) -> Vec<u32> {
     distances
 }
 
-pub fn transform_line_times(lines: Lines<io::BufReader<File>>) -> Vec<u32> {
+pub fn transform_line_times(lines: Lines<io::BufReader<File>>) -> Vec<u64> {
 
-    let mut distances: Vec<u32> = Vec::new();
+    let mut distances: Vec<u64> = Vec::new();
     for line in lines {
         
         if let Ok(line) = line {
 
             distances = line.split_whitespace().map(|distance| {
-                distance.parse::<u32>().expect("erreur de conversion")
+                distance.parse::<u64>().expect("erreur de conversion")
             }).collect()
         }
     }
@@ -36,7 +36,7 @@ pub fn transform_line_times(lines: Lines<io::BufReader<File>>) -> Vec<u32> {
     distances
 }
 
-pub fn transform_race(times: Vec<u32>, distances: Vec<u32>) -> Vec<Race> {
+pub fn transform_race(times: Vec<u64>, distances: Vec<u64>) -> Vec<Race> {
 
     let mut races: Vec<Race> = Vec::new();
     for (index, time) in times.iter().enumerate() {

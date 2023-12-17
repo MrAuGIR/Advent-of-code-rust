@@ -8,10 +8,10 @@ use crate::transformers::*;
 
 fn main() {
 
-    let mut score = 1u32;
+    let mut score = 1u64;
 
     let path_times = String::from("./input/data/times.txt");
-    let mut times: Vec<u32> = Vec::new();
+    let mut times: Vec<u64> = Vec::new();
 
     if let Ok(times_str) = read_lines(path_times) {
         times = transform_line_times(times_str);
@@ -19,7 +19,7 @@ fn main() {
 
 
     let path_distances = String::from("./input/data/distances.txt");
-    let mut distances: Vec<u32> = Vec::new();
+    let mut distances: Vec<u64> = Vec::new();
 
     if let Ok(distances_str) = read_lines(path_distances) {
         distances = transform_line_distance(distances_str);
@@ -29,7 +29,7 @@ fn main() {
 
     for race in &mut races {
         race.calculate_ways_to_win();
-        score *= race.ways_to_win.len() as u32;
+        score *= race.ways_to_win.len() as u64;
     }
 
     println!("scores {:#?}",score);

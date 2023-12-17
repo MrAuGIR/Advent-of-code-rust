@@ -1,13 +1,13 @@
 #[derive(Debug)]
 pub struct Race {
-    duration: u32,
-    record_distance: u32,
-    pub ways_to_win: Vec<u32>
+    duration: u64,
+    record_distance: u64,
+    pub ways_to_win: Vec<u64>
 }
 
 impl Race {
 
-    pub fn new(duration: u32, record: u32) -> Race {
+    pub fn new(duration: u64, record: u64) -> Race {
         Race {
             duration: duration,
             record_distance: record,
