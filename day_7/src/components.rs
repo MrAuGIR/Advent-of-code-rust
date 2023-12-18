@@ -27,8 +27,10 @@ impl Card {
 #[derive(Debug, Clone)]
 pub struct Hand {
     pub cards: Vec<Card>,
+    pub old_cards: Vec<Card>,
     pub bid: u32,
     pub motif: String,
+    pub old_motif: String,
     pub rank: u16,
     pub occurences: HashMap<String,u16>,
     pub type_of_hand: Suite,
@@ -37,11 +39,13 @@ pub struct Hand {
 
 impl Hand {
     
-    pub fn new(cards: Vec<Card>, bid: u32, motif:String, occurences: HashMap<String, u16>, score: u64) -> Hand {
+    pub fn new(cards: Vec<Card>, old_cards: Vec<Card>, bid: u32, motif:String,old_motif:String, occurences: HashMap<String, u16>, score: u64) -> Hand {
         Hand {
             cards: cards,
+            old_cards: old_cards,
             bid: bid,
             motif: motif,
+            old_motif: old_motif,
             rank: 999u16,
             occurences: occurences,
             type_of_hand: Suite::HightCard,
@@ -64,4 +68,27 @@ impl Hand {
 #[derive(Debug, Clone)]
 pub struct Puzzle {
     pub hands: Vec<Hand>
+}
+
+#[derive(Debug, Clone)]
+pub struct StackRule {
+    pub motif: String,
+    pub rules: Vec<JockerRule>
+}
+
+impl StackRule {
+
+    pub fn new(motif: String) -> StackRule
+    {
+        StackRule {
+            motif:motif,
+            rules: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct JockerRule
+{
+    pub transform_to: String
 }

@@ -11,7 +11,7 @@ use crate::components::*;
 fn main() {
 
     // on récupère les mains "hands"
-    let path = String::from("./input/calibration/hands.txt");
+    let path = String::from("./input/data/hands.txt");
 
     // initialise game
     let cards = initialize_game();

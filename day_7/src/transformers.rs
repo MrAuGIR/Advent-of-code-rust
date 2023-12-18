@@ -1,4 +1,5 @@
-use crate::components::{Hand, Card};
+use crate::components::{Hand, Card, JockerRule, StackRule};
+use crate::game::{update_motif_with_jockers_rules, create_vec_of_cards_by_motif};
 use crate::reader::read_lines;
 use std::collections::HashMap;
 use std::fs::File;
@@ -28,8 +29,19 @@ fn create_hands(lines: Lines<io::BufReader<File>>, cards: HashMap<String,Card>) 
             let data: Vec<&str> = line.split_whitespace().collect();
 
             let provisoire_score = 0u64;
+
+            let mut count_jocker = 0u64;
+
+            let mut motif = data.get(0).unwrap().to_string();
+
+            let mut there_are_jocker = false;
             
-            for charac in data.get(0).unwrap().chars() {
+            for charac in motif.chars() {
+
+                if charac == 'J' {
+                    there_are_jocker = true;
+                    count_jocker += 1u64;
+                }
 
                 let valeur = occurances.entry(charac.to_string()).or_insert(0u16);
 
@@ -37,17 +49,59 @@ fn create_hands(lines: Lines<io::BufReader<File>>, cards: HashMap<String,Card>) 
 
                 let card_to_add = cards.get(&charac.to_string()).expect("card not found in the game");
 
-                // provisoire_score += card_to_add.strength as u64; // partie 1 seul la première carte compte dans le score en cas d'egalité
-               /*  if counter < 1 {
-                    provisoire_score += card_to_add.strength as u64;
-                    counter += 1u16;
-                }
-                */
                 vec_cards.push(card_to_add.clone());
             }
+
+            // conversion du hasmap en vec
+            let mut vec_card_count: Vec<(String, u16)> = occurances.clone().into_iter().collect();
+            vec_card_count.sort_by(|a,b| b.1.cmp(&a.1));
+            let old_cards: Vec<Card> = vec_cards.clone();
+
+            // stack de rules a effectué
+            let mut stacks_rules = StackRule::new(data.get(0).unwrap().to_string());
+
+            // si des cartes jockers sont présentes
+            while count_jocker > 0u64 {
+                
+                'occur: for (card_name, occurence) in &vec_card_count {
+
+                    if *occurence == 5 {
+                        count_jocker = 0u64;
+                        break 'occur;
+                    }
+
+                    if card_name.to_owned() == 'J'.to_string() {
+                        continue;
+                    }
+
+                    for _i in 0..occurence.to_owned() {
+                        let jocker_rule = JockerRule{transform_to:card_name.clone()};
+                        stacks_rules.rules.push(jocker_rule);
+                        count_jocker -= 1u64;
+
+                        if count_jocker == 0u64 {
+                            break 'occur;
+                        }
+                    }
+                }
+            }
+
+            if there_are_jocker {
+                motif = update_motif_with_jockers_rules(&mut stacks_rules);
+                println!("nouveau motif {:?}",motif);
+                (vec_cards, occurances) = create_vec_of_cards_by_motif(motif.clone(),cards.to_owned());
+                 //  println!("new vec_cards {:#?}", vec_cards);
+                //  println!("new occurances : {:#?} ",occurances);
+            } else {
+                println!("motif {:?}",motif);
+            }
+
+            // a ajouter ancien et nouveau motif trier avec l'ancien motif quand on est sur le cas d'une égalité
             hands.push(Hand::new(
                 vec_cards,
+                old_cards,
                  data.get(1).map(|b| b.parse::<u32>().expect("error parse")).unwrap(),
+                 motif.clone(),
                  data.get(0).unwrap().to_string(),
                  occurances,
                  provisoire_score,
