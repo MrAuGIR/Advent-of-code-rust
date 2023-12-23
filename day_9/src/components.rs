@@ -79,7 +79,31 @@ impl History {
     
     }
 
+    pub fn calcul_first_value(&mut self) {
+
+        let mut last_sequence: &Vec<i32> = &Vec::new();
+
+        for (index, sequence) in self.sequences.iter_mut().rev().enumerate() {
+
+            if index == 0 {
+                sequence.insert(0, 0i32);
+                last_sequence = sequence;
+                continue;
+            }
+            let value = sequence.first().unwrap()  - last_sequence.first().unwrap();
+
+            sequence.insert(0, value);
+            last_sequence = sequence;
+            
+        }
+
+    }
+
     pub fn get_last_value(&self) -> i32 {
         return *self.sequences.first().unwrap().last().unwrap();
+    }
+
+    pub fn get_first_value(&self) -> i32 {
+        return *self.sequences.first().unwrap().first().unwrap();
     }
 }

@@ -16,16 +16,19 @@ fn main() {
         create_history(lines, &mut histories);
     }
 
-    let mut counter = 0i32;
+    let mut counter_last = 0i32;
+    let mut counter_first = 0i32;
 
     for history in histories.iter_mut() {
         history.make_sequences();
         history.calcul_last_value();
+        history.calcul_first_value();
 
-        counter += history.get_last_value();
-
+        counter_last += history.get_last_value();
+        counter_first += history.get_first_value();
         //println!("{:?}",history.sequences);
     }
 
-    println!("result : {:?}",counter);
+    println!("result : {:?}",counter_last); // resultat partie 1
+    println!("result : {:?}",counter_first); // resultat partie 2
 }
