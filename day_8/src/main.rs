@@ -4,6 +4,7 @@ mod transformer;
 
 use std::collections::HashMap;
 
+use components::Itineraire;
 use components::Node;
 
 use crate::components::InstructionIterator;
@@ -19,6 +20,9 @@ fn main() {
     let mut instructions = String::new();
     let mut graph :HashMap<String, Node> = HashMap::new();
 
+    // les itineraires
+    let mut itineraires: Vec<Itineraire> = Vec::new();
+
     // lecture des fichiers
     if let Ok(lines) = read_lines(path_instruction) {
         instructions = create_instructions(lines);
@@ -27,49 +31,60 @@ fn main() {
     }
 
     if let Ok(lines) = read_lines(path_nodes) {
-        graph = create_graph(lines);
+        graph = create_graph(lines, &mut itineraires);
 
-        println!("{:#?}", graph);
+       // println!("{:#?}", graph);
     }
-
-
-    parcoure_du_graph(graph, String::from("AAA"), instructions)
+    parcoure_du_graph(&graph, &mut itineraires, instructions)
     
 }
 
 
-pub fn parcoure_du_graph(graph:HashMap<String, Node>, start_node: String,instructions: String )
+pub fn parcoure_du_graph<'a>(graph:&'a HashMap<String, Node>, itineraires:&'a mut Vec<Itineraire<'a>>,instructions: String )
 {
 
-    let mut key_node = start_node;
-    println!("point de départ {:?}", key_node);
+    for itineraire in itineraires.iter_mut() {
+        itineraire.init_start(graph);
+        println!("point de départ {:?}", itineraire.get_current_node());
+    }
 
     let mut instruction_iterator = InstructionIterator::new(&instructions);
 
     let mut ending = false;
-    let mut counter_step = 0u32;
+
+    let value_finish = itineraires.len() * 10;
+    let mut counter = 0usize;
 
     while ending == false 
     {
         let direction = instruction_iterator.next().unwrap();
-        let current_node = graph.get(key_node.as_str()).unwrap();
-        println!("instruction en cour {:?}", direction);
+        counter = 0usize;
 
-        key_node = match direction {
-            'L' => {
-                current_node.left.clone()
-            },
-            'R' => {
-                current_node.right.clone()
-            },
-            _ => panic!("Instruction incorrecte")
-        };
-        println!("nouveau point {:?}", key_node);
-        counter_step += 1;
-        if key_node == "ZZZ" {
-            ending = true;
+        let mut itineraires_iter = itineraires.iter_mut();
+        let mut current_iters = itineraires_iter.next();
+
+        println!("direction {:?}",direction);
+
+        'iterA: while let Some(itineraire) = current_iters {
+            itineraire.move_to_node(&direction);
+
+            if itineraire.current_node.label.ends_with("Z") {
+                counter += 10;
+                println!("Il y a un z, counter value {:?}",counter);
+                if value_finish == counter {
+                    ending = true;
+                    break 'iterA;
+                }
+
+                if counter > value_finish {
+                    panic!("error value counter");
+                }
+            }
+
+            current_iters = itineraires_iter.next();
         }
     }
+    let counter_step = itineraires.get(0).unwrap().counter_step as u32;
 
     println!("etape {:?}",counter_step);
 
