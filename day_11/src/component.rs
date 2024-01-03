@@ -14,3 +14,9 @@ impl Galaxy{
         }
     }
 }
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub struct Point {
+    pub row: usize,
+    pub col: usize,
+}

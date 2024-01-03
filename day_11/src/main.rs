@@ -1,6 +1,6 @@
 use component::Galaxy;
 use reader::read_lines;
-use transformer::galaxies_map_transformer;
+use transformer::*;
 
 use crate::path::explore_all_paires;
 
@@ -11,11 +11,26 @@ mod path;
 fn main() {
     
     let input_path = "./input/data.txt".to_string();
+    let output_path = "./input/extend_universe.txt".to_string();
     let mut galaxies: Vec<Galaxy> = Vec::new();
     let mut paths_length: Vec<usize> = Vec::new();
 
-    // lecture du fichier d'entrées
-    if let Ok(input_content) = read_lines(input_path) {
+    // Etape 1 - extension de l'univers - les row
+    if let Err(err) = expand_universe_raw(input_path.as_str(), output_path.as_str()) {
+        eprintln!("Erreur : {}", err);
+    } else {
+        println!("L'univers a été étendu avec succès !");
+    }
+
+    // Etape 2 - extension de l'univers - les colonnes
+    if let Err(err) = expand_universe_col(&output_path.as_str(), output_path.as_str()) {
+        eprintln!("Erreur : {}", err);
+    } else {
+        println!("L'univers a été étendu avec succès !");
+    }
+
+    //  Etape 3 - lecture du fichier d'entrées univers étendu
+    if let Ok(input_content) = read_lines(output_path) {
 
         galaxies_map_transformer(input_content, &mut galaxies);
 
