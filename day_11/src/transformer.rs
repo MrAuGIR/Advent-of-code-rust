@@ -30,7 +30,7 @@ pub fn galaxies_map_transformer(lines: Lines<io::BufReader<File>>,galaxies: &mut
     }
 }
 
-pub fn expand_universe_raw(input: &str, output: &str) -> io::Result<()> {
+pub fn expand_universe_raw(input: &str, output: &str, offset: usize) -> io::Result<()> {
 
     let lines = read_lines(input)?;
 
@@ -69,10 +69,12 @@ pub fn expand_universe_raw(input: &str, output: &str) -> io::Result<()> {
 
          // Dupliquer la ligne si elle ne contient pas de galaxie
         if !row_contains_galaxy {
-            writeln!(output_file)?;
 
-            for _ in min_col..=max_col {
-                write!(output_file, ".")?;
+            for _ in 0..offset - 1 {
+                writeln!(output_file)?;
+
+                let empty_line: String = std::iter::repeat('.').take(max_col - min_col + 1).collect();
+                write!(output_file, "{}", empty_line)?;
             }
         }
 
@@ -83,7 +85,7 @@ pub fn expand_universe_raw(input: &str, output: &str) -> io::Result<()> {
 
 }
 
-pub fn expand_universe_col(input: &str, output: &str) -> io::Result<()> {
+pub fn expand_universe_col(input: &str, output: &str, offset: usize) -> io::Result<()> {
 
     let lines = read_lines(input)?;
 
@@ -120,10 +122,19 @@ pub fn expand_universe_col(input: &str, output: &str) -> io::Result<()> {
 
          // Dupliquer la colonne si elle ne contient pas de galaxie
         if !col_contains_galaxy {
-            writeln!(output_file)?;
 
-            for _ in min_row..=max_row {
-                write!(output_file, ".")?;
+            /* for _ in 0..offset - 1 {
+                writeln!(output_file)?;
+
+                for _ in min_row..=max_row  {
+                    write!(output_file, ".")?;
+                }
+            } */
+            for _ in 0..offset - 1 {
+                writeln!(output_file)?;
+
+                let empty_line: String = std::iter::repeat('.').take(max_row - min_row + 1).collect();
+                write!(output_file, "{}", empty_line)?;
             }
         }
 
