@@ -3,15 +3,13 @@
 #[derive(Debug, Clone)]
 pub struct Sequence{
     pub spring_record: String,
-    pub spring_group: String,
-    pub groups: Vec<Group>,
+    pub groups: Vec<usize>,
 }
 
 impl Sequence {
 
-    pub fn new(spring_record: String, spring_group: String, groups: Vec<Group>) -> Sequence {
+    pub fn new(spring_record: String, groups: Vec<usize>) -> Sequence {
         Sequence{
-            spring_group,
             spring_record,
             groups,
         }

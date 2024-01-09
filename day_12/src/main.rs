@@ -19,7 +19,10 @@ fn main() {
 
 
         for sequence in &sequences {
-            let solutions = remplir_sequence_corrompue(sequence.spring_record.as_str(), &sequence.spring_group);
+
+            println!("sequence en cours {:?}",sequence);
+
+            let solutions = remplir_sequence_corrompue(sequence.spring_record.clone(), &mut sequence.groups.clone());
 
             println!("{:?}", solutions);
         }
