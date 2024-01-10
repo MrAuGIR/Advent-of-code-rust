@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{self, Lines};
 
-use crate::component::{Sequence, Group};
+use crate::component::Sequence;
 
 pub fn transforme_entries(lines: Lines<io::BufReader<File>>,sequences: &mut Vec<Sequence>) {
 
@@ -9,8 +9,7 @@ pub fn transforme_entries(lines: Lines<io::BufReader<File>>,sequences: &mut Vec<
 
         if let Ok(line) = line {
 
-            let mut groups_seq: Vec<Group> = Vec::new();
-
+            
             let mut data = line.split_whitespace();
             let mut work_data = data.clone();
 

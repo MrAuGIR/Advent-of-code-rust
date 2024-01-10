@@ -1,15 +1,16 @@
 
 
-pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>) -> usize {
+pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>, result: &mut String) -> usize {
     // Génération de toutes les combinaisons possibles
     let mut count = 0;
     let mut sequence = sequence;
 
-  //  println!("sequence en cours {:?} ",sequence);
-   // println!("indices en cours {:?}",indices);
+   //println!("sequence en cours {:?} ",sequence);
+   //println!("indices en cours {:?}",indices);
 
     // Cas de base : la séquence est vide et il n'y a plus d'indices
     if sequence.is_empty() && indices.is_empty() {
+        println!("resultat {:?}",result);
         return 1;
     }
 
@@ -20,7 +21,11 @@ pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>) ->
 
     // Cas où la séquence n'est pas vide mais il n'y a plus d'indices
     if indices.is_empty() {
-      //  println!("indice vide reste sequence {:?}",sequence);
+        result.push_str(sequence.as_str());
+        if sequence.contains('#') {
+            return 0;
+        }
+        println!("resultat {:?}",result);
         return 1;
     }
 
@@ -29,7 +34,8 @@ pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>) ->
     match sequence.chars().next() {
         Some('.') => {
             sequence = sequence[1..].to_string();
-            count += remplir_sequence_corrompue(sequence, &mut indices.clone());
+            result.push('.');
+            count += remplir_sequence_corrompue(sequence, &mut indices.clone(), &mut result.clone());
         },
         Some('?') => {
             let mut second_check_sequence = sequence.clone();
@@ -37,12 +43,14 @@ pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>) ->
             // Option 1 : On remplace '?' par '#'
             sequence.remove(0);
             sequence.insert(0, '#');
-            count += remplir_sequence_corrompue(sequence.clone(), &mut indices.clone());
+            
+            count += remplir_sequence_corrompue(sequence.clone(), &mut indices.clone(), &mut result.clone());
 
             // Option 2 : On remplace '?' par '.'
             second_check_sequence.remove(0);
             second_check_sequence.insert(0, '.');
-            count += remplir_sequence_corrompue(second_check_sequence, &mut indices.clone());
+           
+            count += remplir_sequence_corrompue(second_check_sequence, &mut indices.clone(),&mut result.clone());
         },
         Some('#') => {
           //  println!("sequence avec un # de départ {:?}",sequence);
@@ -56,13 +64,16 @@ pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>) ->
                     sequence = sequence.chars().skip(group_length).collect();
                     //  println!("sequence apres un skip {:?}",sequence);
                     indices.remove(0);
+
+                    result.push_str(&echantillon);
   
                     if !sequence.is_empty() && sequence.chars().next().unwrap() == '?' {
+
                         sequence.remove(0);
                         sequence.insert(0, '.');
                         // println!("sequence apres avoir trouver un groupe {:?}",sequence);
                     }
-                    count += remplir_sequence_corrompue(sequence, &mut indices.clone());
+                    count += remplir_sequence_corrompue(sequence, &mut indices.clone(),result);
                 }
              
 
@@ -83,7 +94,10 @@ pub fn remplir_sequence_corrompue(sequence: String, indices: &mut Vec<usize>) ->
                         let mut sequence = sequence.clone();
                         sequence.remove(index);
                         sequence.insert(index, '#');
-                        count += remplir_sequence_corrompue(sequence, &mut indices.clone());
+
+                        
+
+                        count += remplir_sequence_corrompue(sequence, &mut indices.clone(),&mut result.clone());
                         break;
                     }
                 }

@@ -10,11 +10,13 @@ mod component;
 mod calcul_sequence;
 
 fn main() {
-    let input_path = "./input/calibration.txt".to_string();
+    let input_path = "./input/data.txt".to_string();
 
     let mut sequences: Vec<Sequence> = Vec::new();
 
     let mut solutions = 0usize;
+
+    let mut result = String::new();
 
     if let Ok(content) = read_lines(input_path) {
         transforme_entries(content, &mut sequences);
@@ -24,7 +26,7 @@ fn main() {
 
             println!("sequence en cours {:?}",sequence);
 
-            solutions += remplir_sequence_corrompue(sequence.spring_record.clone(), &mut sequence.groups.clone());
+            solutions += remplir_sequence_corrompue(sequence.spring_record.clone(), &mut sequence.groups.clone(),&mut result);
         }
 
         println!("{:?}", solutions);
