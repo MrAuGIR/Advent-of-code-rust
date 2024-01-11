@@ -16,17 +16,17 @@ fn main() {
 
     let mut solutions = 0usize;
 
-    let mut result = String::new();
 
     if let Ok(content) = read_lines(input_path) {
         transforme_entries(content, &mut sequences);
 
+        for (index,sequence) in sequences.iter().enumerate() {
 
-        for sequence in &sequences {
+            println!("sequence {:?} en cours {:?}",index,sequence.spring_record);
 
-            println!("sequence en cours {:?}",sequence);
+            solutions += remplir_sequence_corrompue(sequence.spring_record.clone(), sequence.groups.clone());
 
-            solutions += remplir_sequence_corrompue(sequence.spring_record.clone(), &mut sequence.groups.clone(),&mut result);
+            println!("count {:?}",solutions);
         }
 
         println!("{:?}", solutions);
