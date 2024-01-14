@@ -5,14 +5,23 @@ use crate::component::Pattern;
 pub fn analyze_pattern(pattern: &mut  Pattern) -> usize {
 
     let mut count = 0usize;
+    let mut count_vertical = 0usize;
+    let mut count_horizontal = 0usize;
 
-    count += analyse_horizontal_reflection(pattern.lines.clone());
-    count += analyze_vertical_reflection(pattern.lines.clone());
+    count_vertical = analyze_vertical_reflection(pattern.lines.clone());
+    count_horizontal = analyze_horizontal_reflection(pattern.lines.clone());
+    
+    if count_horizontal != 0 && count_vertical != 0 {
+        println!("il y a deux reflection");
+    }
+
+    count += count_horizontal.max(count_vertical);
 
     return count;
 }
 
-pub fn analyse_horizontal_reflection(lines: Vec<Vec<char>>) -> usize {
+pub fn analyze_horizontal_reflection(lines: Vec<Vec<char>>) -> usize {
+    let mut result = 0usize;
     let mut lines = lines.clone();
     let nb_row = lines.len();
     let lines_tmp = lines.clone();
@@ -54,15 +63,14 @@ pub fn analyse_horizontal_reflection(lines: Vec<Vec<char>>) -> usize {
                         }
 
                     } else {
-                        break;
+                        
                     }
-
                 }
 
 
                 if is_reflection {
                     println!("is reflection ligne n°{:?} <> ligne n°{:?}",index, next_line);
-                    return 100 * (index + 1usize);
+                    result =  100 * (index + 1usize);
                 }
                 
             }
@@ -71,7 +79,7 @@ pub fn analyse_horizontal_reflection(lines: Vec<Vec<char>>) -> usize {
 
     }
 
-    0
+    result
 }
 
 
@@ -94,10 +102,10 @@ pub fn analyze_vertical_reflection(lines: Vec<Vec<char>>) -> usize {
 
         if col_a == col_b {
             is_reflection = true;
+            
+            let offset = (nb_col - next_col).min(col_index);//col_index;
 
-            let offset = col_index;
-
-            for s in 1..offset {
+            for s in 1..=offset {
                 let index_right = next_col + s;
                 let index_left = col_index - s;
 
@@ -108,8 +116,6 @@ pub fn analyze_vertical_reflection(lines: Vec<Vec<char>>) -> usize {
 
                     if col_a != col_b {
                         is_reflection = false;
-                        break;
-                    } else {
                         break;
                     }
 
