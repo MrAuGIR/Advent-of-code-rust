@@ -23,8 +23,6 @@ fn main() {
         transforme_entries(lines, &mut patterns);
     }
 
-    
-
     // analyse des pattern
     for (index,pattern) in patterns.iter_mut().enumerate() {
         println!("pattern n°{:?}",index);
