@@ -1,28 +1,30 @@
 use memoize::memoize;
 
-pub fn cycle(map: &mut Vec<Vec<char>>) {
 
-    tilt_north(map);
+#[memoize(Ignore: map)]
+pub fn cycle(map:Vec<Vec<char>>, hash: String) -> Vec<Vec<char>> {
+
+    let mut map = map;
+    tilt_north(&mut map);
     //display_map(map);
     
-    tilt_west(map);
-  //  display_map(map);
+    tilt_west(&mut map);
+    //  display_map(map);
 
-    tilt_south(map);
-  //  display_map(map);
+    tilt_south(&mut map);
+    //  display_map(map);
 
-    tilt_east(map);
-  //  display_map(map);
-
+    tilt_east(&mut map);
+    //  display_map(map);
+    return map;
 }
+   
 
 
-pub fn tilt_north(map: &mut Vec<Vec<char>>) -> usize {
+pub fn tilt_north(map: &mut Vec<Vec<char>>) {
 
     let mut num_map: Vec<Vec<u16>> = Vec::new();
     let map_tmp = map.clone();
-    let mut count = 0;
-    let nb_line = map.len();
 
     for (i,line) in map_tmp.iter().enumerate() {
 
@@ -48,7 +50,6 @@ pub fn tilt_north(map: &mut Vec<Vec<char>>) -> usize {
                     } 
 
                     move_rounded_rock(map, (i,j), (i-prev_value as usize,j));
-                    calcul_amount_of_load(i-prev_value  as usize, &mut count, nb_line);
 
                     num_line.push(prev_value.clone())
 
@@ -60,12 +61,11 @@ pub fn tilt_north(map: &mut Vec<Vec<char>>) -> usize {
         }
         num_map.push(num_line);
     } 
-    count
 }
 
 
 pub fn tilt_west(map: &mut Vec<Vec<char>>) {
-    let mut num_map: Vec<Vec<u16>> = Vec::new();
+    
     let map_tmp = map.clone();
     
     for (i,line) in map_tmp.iter().enumerate() {
@@ -101,7 +101,6 @@ pub fn tilt_west(map: &mut Vec<Vec<char>>) {
                 }
             }
         }
-        num_map.push(num_line);
     } 
 }
 
@@ -138,7 +137,6 @@ pub fn tilt_south(map: &mut Vec<Vec<char>>) {
                     } 
 
                     move_rounded_rock(map, (real_i,j), (real_i + prev_value as usize,j));
-                    //calcul_amount_of_load(i-prev_value  as usize, &mut count, nb_line);
 
                     num_line.push(prev_value.clone());
                 },
@@ -153,7 +151,7 @@ pub fn tilt_south(map: &mut Vec<Vec<char>>) {
 
 
 pub fn tilt_east(map: &mut Vec<Vec<char>>) {
-    let mut num_map: Vec<Vec<u16>> = Vec::new();
+
     let map_tmp = map.clone();
     
     for (i,line) in map_tmp.iter().enumerate() {
@@ -193,7 +191,6 @@ pub fn tilt_east(map: &mut Vec<Vec<char>>) {
                 }
             }
         }
-        num_map.push(num_line);
     } 
 }
 
