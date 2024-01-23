@@ -2,34 +2,33 @@ use memoize::memoize;
 
 
 #[memoize(Ignore: map)]
-pub fn cycle(map:Vec<Vec<char>>, hash: String) -> Vec<Vec<char>> {
+pub fn cycle(map:&mut Vec<char>, hash: String) {
 
-    let mut map = map;
-    tilt_north(&mut map);
+    tilt_north(map);
     //display_map(map);
     
-    tilt_west(&mut map);
+    tilt_west(map);
     //  display_map(map);
 
-    tilt_south(&mut map);
+    tilt_south(map);
     //  display_map(map);
 
-    tilt_east(&mut map);
+    tilt_east(map);
     //  display_map(map);
-    return map;
 }
    
 
 
-pub fn tilt_north(map: &mut Vec<Vec<char>>) {
+pub fn tilt_north(map: &mut Vec<char>) {
 
     let mut num_map: Vec<Vec<u16>> = Vec::new();
-    let map_tmp = map.clone();
-
-    for (i,line) in map_tmp.iter().enumerate() {
+    
+    for i in 0..10 {
 
         let mut num_line: Vec<u16> = Vec::new();
-        for (j, caractere) in line.iter().enumerate() {
+        for j in 0..10{
+
+            let caractere = get_ref_caractere(map,i,j);
             
             match caractere {
                 '.' => {
@@ -64,14 +63,14 @@ pub fn tilt_north(map: &mut Vec<Vec<char>>) {
 }
 
 
-pub fn tilt_west(map: &mut Vec<Vec<char>>) {
+pub fn tilt_west(map: &mut Vec<char>) {
     
-    let map_tmp = map.clone();
-    
-    for (i,line) in map_tmp.iter().enumerate() {
+    for i in 0..10 {
 
         let mut num_line: Vec<u16> = Vec::new();
-        for (j, caractere) in line.iter().enumerate() {
+        for j in 0..10 {
+
+            let caractere = get_ref_caractere(map,i,j);
             
             match caractere {
                 '.' => {
@@ -105,18 +104,20 @@ pub fn tilt_west(map: &mut Vec<Vec<char>>) {
 }
 
 
-pub fn tilt_south(map: &mut Vec<Vec<char>>) {
+pub fn tilt_south(map: &mut Vec<char>) {
     let mut num_map: Vec<Vec<u16>> = Vec::new();
-    let map_tmp = map.clone();
-    let nb_lines = map.len();
+    let nb_lines = 10;
     
     // on inverse le sens
-    for (i,line) in map_tmp.iter().rev().enumerate() {
+    for i in 0..10 {
 
         let real_i = nb_lines - 1 - i; // real index
         
         let mut num_line: Vec<u16> = Vec::new();
-        for (j, caractere) in line.iter().enumerate() {
+        for j in 0..10 {
+
+            
+            let caractere = get_ref_caractere(map,real_i,j);
             
             match caractere {
                 '.' => {
@@ -150,18 +151,19 @@ pub fn tilt_south(map: &mut Vec<Vec<char>>) {
 }
 
 
-pub fn tilt_east(map: &mut Vec<Vec<char>>) {
+pub fn tilt_east(map: &mut Vec<char>) {
 
-    let map_tmp = map.clone();
-    
-    for (i,line) in map_tmp.iter().enumerate() {
+    for i in 0..10 {
 
         let mut num_line: Vec<u16> = Vec::new();
-        let len_line = line.len();
+        let len_line = 10;
         // on inverse
-        for (j, caractere) in line.iter().rev().enumerate() {
+        for j in 0..10 {
 
             let real_j = len_line - 1 - j;
+            
+
+            let caractere = get_ref_caractere(map,i,real_j);
             
             match caractere {
                 '.' => {
@@ -194,28 +196,39 @@ pub fn tilt_east(map: &mut Vec<Vec<char>>) {
     } 
 }
 
-pub fn move_rounded_rock(map: &mut Vec<Vec<char>>,origin: (usize,usize), destination: (usize,usize)) {
+pub fn move_rounded_rock(map: &mut Vec<char>,origin: (usize,usize), destination: (usize,usize)) {
 
-    let (line_origin,col_origin_) = origin;
+    let (line_origin,col_origin) = origin;
     let (line_dest, col_dest) = destination;
 
-    *map.get_mut(line_origin).unwrap().get_mut(col_origin_).unwrap() = '.';
-    *map.get_mut(line_dest).unwrap().get_mut(col_dest).unwrap() = 'O';
+    let index = line_origin * 10 + col_origin;
+
+    *map.get_mut(index).unwrap() = '.';
+
+    let index = line_dest * 10 + col_dest;
+    *map.get_mut(index).unwrap() = 'O';
 }
 
 
-pub fn calcul_total_load(map: &Vec<Vec<char>>) -> usize {
+pub fn calcul_total_load(map: &Vec<char>) -> usize {
     let mut count = 0usize;
-    let nb_line = map.len();
-    for (i,line) in map.iter().enumerate() {
-        for (_,caractere) in line.iter().enumerate() {
-
-            if *caractere == 'O' {
-                calcul_amount_of_load(i, &mut count, nb_line);
-            }
+    let nb_line = map.len() / 10;
+    
+    for (i,caractere) in map.iter().enumerate() {
+        
+        if *caractere == 'O' {
+            let (ligne, _) = div_rem(i, 10);
+            
+            calcul_amount_of_load(ligne, &mut count, nb_line);
         }
     }
+    
     count
+}
+
+// Fonction utilitaire pour la division entière et le reste
+fn div_rem(n: usize, divisor: usize) -> (usize, usize) {
+    (n / divisor, n % divisor)
 }
 
 pub fn calcul_amount_of_load(line: usize,count: &mut usize, nb_line: usize) {
@@ -228,4 +241,9 @@ pub fn display_map(map: &Vec<Vec<char>>) {
         println!("{:?}",line);
         println!("___________");
     }
+}
+
+pub fn get_ref_caractere<'a>(map: &'a Vec<char>,i: usize,j: usize) -> &'a char {
+    let index = i * 10 + j;
+    return map.get(index).unwrap()
 }
