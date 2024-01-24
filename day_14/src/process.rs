@@ -1,8 +1,8 @@
-use memoize::memoize;
+use std::collections::HashMap;
 
 
-#[memoize(Ignore: map)]
-pub fn cycle(map:&mut Vec<char>, hash: String) {
+
+pub fn cycle(map:&mut Vec<char>) {
 
     tilt_north(map);
     //display_map(map);
@@ -67,7 +67,7 @@ pub fn tilt_west(map: &mut Vec<char>) {
     
     for i in 0..10 {
 
-        let mut num_line: Vec<u16> = Vec::new();
+        let mut num_line: HashMap<usize,u16> = HashMap::new();
         for j in 0..10 {
 
             let caractere = get_ref_caractere(map,i,j);
@@ -76,24 +76,26 @@ pub fn tilt_west(map: &mut Vec<char>) {
                 '.' => {
                     // incremente de 1 la valeur sur la meme colonne de la ligne precedente
                     let mut prev_value = 0;
-                    if  j > 0{
-                        prev_value = num_line.get(j - 1).unwrap().clone();
+                    if  j > 0 {
+                        let index_search = j - 1usize;
+                        prev_value = num_line.get(&index_search).unwrap().clone();
                     } 
-                    num_line.push(prev_value + 1u16);
+                    num_line.insert(j, prev_value + 1u16);
                 },
                 '#' => {
-                    num_line.push(0u16);
+                    //num_line.push(0u16);
+                    num_line.insert(j, 0u16);
                 },
                 'O' => {
                     let mut prev_value = 0;
                     if j > 0 {
-                        prev_value = num_line.get(j - 1).unwrap().clone();
+                        let index_search = j - 1usize;
+                        prev_value = num_line.get(&index_search).unwrap().clone();
                     } 
 
                     move_rounded_rock(map, (i,j), (i,j - prev_value as usize));
-                    //calcul_amount_of_load(i-prev_value  as usize, &mut count, nb_line);
 
-                    num_line.push(prev_value.clone());
+                    num_line.insert(j, prev_value);
                 },
                 _ => {
                     panic!("unknow caractere");
@@ -109,22 +111,22 @@ pub fn tilt_south(map: &mut Vec<char>) {
     let nb_lines = 10;
     
     // on inverse le sens
-    for i in 0..10 {
+    for i in (0..10).rev() {
 
         let real_i = nb_lines - 1 - i; // real index
+        
         
         let mut num_line: Vec<u16> = Vec::new();
         for j in 0..10 {
 
-            
-            let caractere = get_ref_caractere(map,real_i,j);
+            let caractere = get_ref_caractere(map,i,j);
             
             match caractere {
                 '.' => {
                     // incremente de 1 la valeur sur la meme colonne de la ligne precedente
                     let mut prev_value = 0;
-                    if i > 0 {
-                        prev_value = num_map.get(i - 1).unwrap().get(j).unwrap().clone();
+                    if real_i > 0 {
+                        prev_value = num_map.get(real_i - 1).unwrap().get(j).unwrap().clone();
                     } 
                     num_line.push(prev_value + 1u16);
                 },
@@ -133,11 +135,11 @@ pub fn tilt_south(map: &mut Vec<char>) {
                 },
                 'O' => {
                     let mut prev_value = 0;
-                    if i > 0 {
-                        prev_value = num_map.get(i - 1).unwrap().get(j).unwrap().clone();
+                    if real_i > 0 {
+                        prev_value = num_map.get(real_i - 1).unwrap().get(j).unwrap().clone();
                     } 
 
-                    move_rounded_rock(map, (real_i,j), (real_i + prev_value as usize,j));
+                    move_rounded_rock(map, (i,j), (i + prev_value as usize,j));
 
                     num_line.push(prev_value.clone());
                 },
@@ -155,38 +157,41 @@ pub fn tilt_east(map: &mut Vec<char>) {
 
     for i in 0..10 {
 
-        let mut num_line: Vec<u16> = Vec::new();
-        let len_line = 10;
+       // let mut num_line: Vec<u16> = Vec::new();
+        let mut num_line: HashMap<usize, u16> = HashMap::new();
+       
         // on inverse
-        for j in 0..10 {
+        for j in (0..10).rev() {
 
-            let real_j = len_line - 1 - j;
-            
-
-            let caractere = get_ref_caractere(map,i,real_j);
+            let caractere = get_ref_caractere(map,i,j);
             
             match caractere {
                 '.' => {
                     // incremente de 1 la valeur sur la meme colonne de la ligne precedente
                     let mut prev_value = 0;
-                    if  j > 0{
-                        prev_value = num_line.get(j - 1).unwrap().clone();
-                    } 
-                    num_line.push(prev_value + 1u16);
+                    if   j < 9{
+                        let index_search = j + 1usize;
+                        prev_value = num_line.get(&index_search).unwrap().clone();
+                    }
+                    num_line.insert(j, prev_value + 1u16);
+
+                   // num_line.push(prev_value + 1u16);
                 },
                 '#' => {
-                    num_line.push(0u16);
+                    num_line.insert(j,0u16);
                 },
                 'O' => {
                     let mut prev_value = 0;
-                    if j > 0 {
-                        prev_value = num_line.get(j - 1).unwrap().clone();
+                    if j < 9 {
+                        let index_search = j + 1usize;
+                        prev_value = num_line.get(&index_search).unwrap().clone();
                     } 
 
-                    move_rounded_rock(map, (i,real_j), (i,real_j + prev_value as usize));
+                    move_rounded_rock(map, (i,j), (i,j + prev_value as usize));
                     //calcul_amount_of_load(i-prev_value  as usize, &mut count, nb_line);
 
-                    num_line.push(prev_value.clone());
+                   // num_line.push(prev_value.clone());
+                    num_line.insert(j, prev_value);
                 },
                 _ => {
                     panic!("unknow caractere");
