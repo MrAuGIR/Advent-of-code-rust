@@ -20,7 +20,4 @@ fn main() {
 
         calcul_hash(&mut caracteres, &mut total_sum);
     }
-
-    
-    println!("{:?}",total_sum);
 }
