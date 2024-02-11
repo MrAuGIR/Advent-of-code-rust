@@ -1,11 +1,11 @@
-use std::collections::{HashSet, VecDeque};
+use std::{collections::{HashSet, VecDeque}, iter::Inspect};
 
 use array2d::Array2D;
 
 use crate::component::{Point, Position, Direction};
 
 
-pub fn process_part_one(input: &Array2D<char>) -> Option<usize>{
+pub fn process_part_one(input: &Array2D<char>, start_point: Point) -> Option<usize>{
 
     let mut visited_positions: HashSet<Position> = HashSet::new();
     let mut seen_node: HashSet<Point> = HashSet::new();
@@ -13,10 +13,8 @@ pub fn process_part_one(input: &Array2D<char>) -> Option<usize>{
     // init de la pile
     let mut move_stack: VecDeque<Point> = VecDeque::new();
 
-    let current_point = Point { x: 0, y: 0, c: input.get(0, 0).unwrap().to_ascii_lowercase(), direction: Direction::Right };
-
-    move_stack.push_back(current_point.clone());
-    seen_node.insert(current_point);
+    move_stack.push_back(start_point.clone());
+    seen_node.insert(start_point);
 
     while let Some(node) = move_stack.pop_front() {
 
@@ -35,6 +33,49 @@ pub fn process_part_one(input: &Array2D<char>) -> Option<usize>{
     Some(visited_positions.iter().len())
 }
 
+pub fn process_part_two(input: &Array2D<char>) -> Option<usize> {
+
+    // On parcoure tous les points de depart possibles
+    let last_index_x  = input.column_len() - 1;
+    let last_index_y = input.row_len() - 1;
+
+    let mut starts: Vec<Point> = Vec::new();
+    let mut most_energizes = 0;
+
+    for (y,_) in input.as_rows().iter().enumerate() {
+
+        let left_start = get_current_point(0, y, input, Direction::Right);
+        let right_start = get_current_point(last_index_x, y, input, Direction::Left);
+        starts.push(left_start.clone());
+        starts.push(right_start.clone());
+    }
+
+    for (x,_) in input.as_columns().iter().enumerate() {
+        let top_start = get_current_point(x, 0, input, Direction::Down);
+        let bottom_start = get_current_point(x, last_index_y,input, Direction::Up);
+        starts.push(top_start.clone());
+        starts.push(bottom_start.clone());
+    }
+
+    for start in starts {
+
+        if let Some(energizes) = process_part_one(&input, start) {
+            if energizes > most_energizes {
+                most_energizes = energizes;
+            }
+        }
+    }
+    Some(most_energizes)
+}
+
+fn get_current_point(x: usize, y:usize, map: &Array2D<char>, direction: Direction) -> Point {
+    Point {
+        x,
+        y,
+        c: map.get(y,0).unwrap().to_ascii_lowercase(),
+        direction: direction
+    }
+}
 
 fn make_signal_path(position: Point, map: &Array2D<char>, visited_positions: &mut HashSet<Position>) -> Vec<Point> {
     
