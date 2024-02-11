@@ -10,13 +10,13 @@ mod component;
 mod process;
 
 fn main() {
-    let input_path = "./input/calibration.txt";
+    let input_path = "./input/data.txt";
 
     let content = read_lines(input_path);
 
     let array = get_map(content.as_str());
 
-    process_part_one(&array);
-
-    println!("{:#?}",array);
+    if let Some(result) = process_part_one(&array) {
+        println!("{:?}",result);
+    }   
 }

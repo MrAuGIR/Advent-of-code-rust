@@ -16,6 +16,7 @@ pub struct Point {
 }
 
 #[derive(Debug,Clone,Eq,PartialEq, Hash)]
+#[derive(Ord, PartialOrd)]
 pub struct Position {
     pub x: usize,
     pub y: usize
