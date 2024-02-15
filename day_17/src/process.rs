@@ -6,7 +6,7 @@ use crate::component::{Bloc,Direction};
 
 
 
- pub fn parcours_aStar(map: Array2D<u32>) {
+ pub fn parcours_aStar(map: Array2D<Bloc>) {
 
     let mut queue: VecDeque<Bloc> = VecDeque::new();
 
