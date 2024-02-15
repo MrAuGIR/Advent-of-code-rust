@@ -11,5 +11,5 @@ pub struct Bloc {
     pub x: usize,
     pub y: usize,
     pub lost: u32,
-    pub direction: Direction
+    pub color: String
 }
