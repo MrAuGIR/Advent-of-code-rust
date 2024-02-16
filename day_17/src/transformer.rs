@@ -1,4 +1,3 @@
-use std::vec;
 
 use array2d::Array2D;
 
