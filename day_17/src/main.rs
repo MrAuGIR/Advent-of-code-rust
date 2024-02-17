@@ -1,7 +1,7 @@
 use process::parcours_a_star;
 use reader::read_lines;
 
-use crate::transformer::{get_map_bloc, init_neighbors};
+use crate::{process::display_travel, transformer::{get_map_bloc, init_neighbors}, write::write_output_file};
 
 
 
@@ -9,6 +9,7 @@ mod reader;
 mod transformer;
 mod component;
 mod process;
+mod write;
 
 fn main() {
     let input_path = "./input/calibration.txt";
@@ -23,8 +24,19 @@ fn main() {
     let (max_x, max_y) = (map.num_columns(), map.num_rows());
     let end = map.get(max_y - 1, max_x - 1).unwrap();
 
-    
-    let travel = parcours_a_star(&map, start.clone(), end.clone());
+    let mut heat_lost = 0 as usize;
 
-    println!("{:?}",travel);
+    
+    if let Some(travel) = parcours_a_star(&map, start.clone(), end.clone()) {
+        
+        display_travel(&travel, &mut heat_lost);
+
+        let result = write_output_file("./output/calibration_result.txt".to_string(), &map, &travel);
+    }
+
+    println!("heat lost {:?}",heat_lost);
+
+   
 }
+
+

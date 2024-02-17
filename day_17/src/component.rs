@@ -1,16 +1,30 @@
 use std::cmp::Ordering;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum Direction {
+    Top,
+    Bottom,
+    Left,
+    Right,
+    None
+}
 
 
-#[derive(Debug,Clone,Eq,PartialEq,Hash)]
+#[derive(Debug,Clone,Eq,Hash)]
 pub struct Bloc {
     pub x: usize,
     pub y: usize,
     pub score: u32,
-    pub color: String,
+    pub direction: Direction,
     pub h_score: usize,
     pub f_score: usize,
     pub neighbors: Vec<(usize,usize)>
+}
+
+impl PartialEq for Bloc {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
 }
 
 
@@ -34,7 +48,7 @@ impl Bloc {
             x,
             y,
             score,
-            color: "WHITE".to_string(),
+            direction: Direction::None,
             h_score: 0,
             f_score: 0,
             neighbors: Vec::new()
