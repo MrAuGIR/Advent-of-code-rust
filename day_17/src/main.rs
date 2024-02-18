@@ -10,6 +10,7 @@ mod transformer;
 mod component;
 mod process;
 mod write;
+mod dijkstra;
 
 fn main() {
     let input_path = "./input/calibration.txt";
@@ -30,8 +31,7 @@ fn main() {
     if let Some(travel) = parcours_a_star(&map, start.clone(), end.clone()) {
         
         display_travel(&travel, &mut heat_lost);
-
-        let result = write_output_file("./output/calibration_result.txt".to_string(), &map, &travel);
+        write_output_file("./output/calibration_result.txt".to_string(), &map, &travel);
     }
 
     println!("heat lost {:?}",heat_lost);

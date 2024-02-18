@@ -2,7 +2,45 @@ use std::collections::{BinaryHeap, HashMap};
 
 use array2d::Array2D;
 
-use crate::component::{Bloc, Direction};
+use crate::{component::{Bloc, Direction}, dijkstra::{self, Dijkstra}};
+
+pub fn solve(map: &Array2D<Bloc>, start: Bloc, end: Bloc) {
+
+
+    let adjacency = |bloc: Bloc| -> Vec<Bloc> {
+        let vec: Vec<Bloc> = if bloc.forward_count < 3 {
+            let mut vec = Vec::new();
+            if let Some(neighbor) = bloc.node_left() {
+                vec.push(neighbor);
+            }
+            if let Some(neighbor) = bloc.node_right() {
+                vec.push(neighbor);
+            }
+            if let Some(neighbor) = bloc.node_forward() {
+                vec.push(neighbor);
+            }
+            let vec = vec.iter_mut().map(|c| map.get(c.1,c.0).unwrap().clone()).collect();
+            vec
+            
+        } else {
+            bloc.neighbors.iter().map(|c| map.get(c.1, c.0).unwrap().clone()).collect()
+        };
+        vec
+    };
+
+    let is_end = |bloc: Bloc| -> bool { bloc.forward_count >= 4 && bloc == end};
+
+    
+    let starts = vec![
+        start
+    ];
+
+    let cost = |bloc: Bloc| bloc.score as usize;
+
+    let dijkstra = Dijkstra::new(&adjacency, &cost, &is_end);
+
+    dijkstra.cost(starts).unwrap().to_string()
+}
 
 
  pub fn parcours_a_star(map: &Array2D<Bloc>, start: Bloc, end: Bloc) -> Option<Vec<Bloc>> {
@@ -17,10 +55,14 @@ use crate::component::{Bloc, Direction};
 
     start.h_score = 0; // score heuristique du départ
 
-    queue.push(start.clone()); // ajout a la file
+    queue.push(start.clone());
+    
+    let mut prev_bloc = start.clone(); // ajout a la file
+    let mut prev_direction = Direction::None;
 
     g_scores.insert(start, 0);
 
+    
     while let Some(current_bloc) = queue.pop() {
 
         //println!("current bloc (x:{:?}, y:{:?})",current_bloc.x,current_bloc.y);
@@ -29,28 +71,27 @@ use crate::component::{Bloc, Direction};
             return Some(build_path(travel_from, end));
         }
 
+        let direction_parent = determine_direction(&current_bloc, &prev_bloc);
+
+        println!("direction parent {:?} <=> prev direction {:?}",direction_parent, prev_direction);
+        if direction_parent != prev_direction  {
+            current_step_in_a_direction = 0;
+        }
+
         // on parcours les voisins
         for neighbor in get_neighbors(&current_bloc) {
             if let Some(neighbor) = map.get(neighbor.1, neighbor.0) {
 
                 let mut neighbor = neighbor.clone();
                 let direction = determine_direction(&neighbor, &current_bloc);
-                
+
+                if direction ==  direction_parent && current_step_in_a_direction > 2 {
+                   
+                   continue;
+                }
+                    
                 let tentative_g_score = match g_scores.get(&neighbor) {
-                    Some(score) => {
-                        println!("current step direction {:?}",current_step_in_a_direction);
-                        let direction_penalty = match direction {
-                            Direction::Bottom | Direction::Left | Direction::Right | Direction::Top => {
-                                if direction ==  current_direction && current_step_in_a_direction >= 3 {
-                                    10
-                                } else {
-                                    0
-                                }
-                            },
-                            _ => 0
-                        };
-                        *score + 1 + direction_penalty
-                    },
+                    Some(score) => *score + 1,
                     None => 0
                 }; // mouvement supplementaire dans la grille
 
@@ -67,12 +108,13 @@ use crate::component::{Bloc, Direction};
                     queue.push(neighbor.clone());
 
                     travel_from.insert(neighbor.clone(), current_bloc.clone());
-                    update_info_direction(&direction, &current_direction, &mut current_step_in_a_direction);
-                    current_direction = direction;
+                
                 }
             }
 
         }
+        prev_bloc = current_bloc;
+        prev_direction = direction_parent;
     }
     None
  }
@@ -92,10 +134,11 @@ use crate::component::{Bloc, Direction};
  }
 
  fn calcul_heuristic(a: Bloc, b: Bloc) -> usize {
-    let distance =  ((a.x as isize - b.x as isize).abs() + (a.y as isize - b.y as isize).abs()) as usize;
-    let heat_lost = a.score;
+    0
+   // let distance =  ((a.x as isize - b.x as isize).abs() + (a.y as isize - b.y as isize).abs()) as usize;
+   // let heat_lost = a.score;
 
-    distance * heat_lost as usize
+   // distance * heat_lost as usize
     //distance.checked_sub(a.score as usize).unwrap_or(0)
  }
 

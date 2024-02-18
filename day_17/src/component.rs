@@ -18,7 +18,8 @@ pub struct Bloc {
     pub direction: Direction,
     pub h_score: usize,
     pub f_score: usize,
-    pub neighbors: Vec<(usize,usize)>
+    pub neighbors: Vec<(usize,usize)>,
+    pub forward_count: usize,
 }
 
 impl PartialEq for Bloc {
@@ -43,15 +44,44 @@ impl PartialOrd for Bloc {
 
 impl Bloc {
     
-    pub fn new(x: usize, y:usize, score: u32) -> Bloc {
-        Bloc {
+    pub fn new(x: usize, y:usize, score: u32) -> Self {
+        Self {
             x,
             y,
             score,
             direction: Direction::None,
             h_score: 0,
             f_score: 0,
-            neighbors: Vec::new()
+            neighbors: Vec::new(),
+            forward_count: 0,
         }
     }
+
+    pub fn node_left(&self) -> Option<(usize,usize)> {
+        for neighbor in self.neighbors {
+            if neighbor.0 == self.x - 1 {
+                return Some(neighbor)
+            }
+        }
+        None
+    }
+
+    pub fn node_right(&self) -> Option<(usize,usize)> {
+        for neighbor in self.neighbors {
+            if neighbor.0 == self.x + 1 {
+                return Some(neighbor)
+            }
+        }
+        None
+    }
+
+    pub fn node_forward(&self) -> Option<(usize,usize)> {
+        for neighbor in self.neighbors {
+            if neighbor.1 == self.y + 1 {
+                return Some(neighbor)
+            }
+        }
+        None
+    }
+
 }
