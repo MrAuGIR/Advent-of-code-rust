@@ -1,3 +1,4 @@
 */target
 */*.lock
 */*/data.txt
+target/
